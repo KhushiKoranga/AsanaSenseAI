@@ -123,12 +123,11 @@ Python 3.11 is the recommended environment for this project.
 
 ### 1. Clone the Repository
 
+
 ```bash
-git clone <YOUR_GITHUB_REPOSITORY_URL>
+git clone https://github.com/KhushiKoranga/AsanaSenseAI.git
 cd AsanaSenseAI
 ```
-
-Replace `<YOUR_GITHUB_REPOSITORY_URL>` with your actual GitHub repository URL.
 
 ### 2. Create a Virtual Environment
 
