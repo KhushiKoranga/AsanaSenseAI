@@ -9,6 +9,15 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    .camera-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;padding:12px 0}
+    .camera-button{border:0;border-radius:10px;padding:11px 16px;font:600 14px Inter,sans-serif;cursor:pointer;background:#8a80ff;color:#101321}
+    .camera-button.secondary{background:#283247;color:#eef0f7}
+    .camera-button:disabled{opacity:.55;cursor:not-allowed}
+    .browser-camera-frame{position:relative;width:100%;aspect-ratio:16/9;background:#080b12;overflow:hidden}
+    .browser-camera-frame>img{display:block;width:100%;height:100%;object-fit:contain}
+    .camera-help{font-size:13px;line-height:1.5;color:#929bb0}
+  </style>
 </head>
 <body>
 <div class="app-shell">
@@ -32,22 +41,31 @@
   <main class="dashboard">
     <section class="camera-column">
       <div class="page-intro">
-        <div>
-          <p class="eyebrow">YOUR PRACTICE SPACE</p>
-          <h1>Find your <span class="accent">balance.</span></h1>
-          <p class="subtitle">Move mindfully. Get real-time feedback on your form.</p>
-        </div>
-        <div class="camera-chip"><span class="pulse-dot"></span> Camera coaching</div>
+        <div><p class="eyebrow">YOUR PRACTICE SPACE</p><h1>Find your <span class="accent">balance.</span></h1>
+          <p class="subtitle">Move mindfully. Get real-time feedback on your form.</p></div>
+        <div class="camera-chip"><span class="pulse-dot"></span> Browser camera coaching</div>
       </div>
 
       <section class="camera-card">
         <div class="card-topline"><span><span class="tiny-dot"></span> LIVE CAMERA</span><span class="muted">Reference skeleton overlays your pose</span></div>
-        <div class="video-frame">
-          <img src="{{ url_for('video_feed') }}" alt="Live yoga pose analysis">
+        <div class="browser-camera-frame">
+          <img id="processedFrame" alt="Processed webcam view with pose tracking">
+          <video id="webcamVideo" autoplay playsinline muted hidden></video>
+          <canvas id="captureCanvas" hidden></canvas>
           <div class="video-target" id="videoTarget">{{ pose_names.get(target_pose, target_pose) }}</div>
           <div class="video-caption"><span class="pulse-dot"></span> MediaPipe pose tracking <span class="caption-divider">·</span> 33 landmarks</div>
+          <div id="cameraPlaceholder" style="position:absolute;inset:0;display:grid;place-content:center;text-align:center;padding:20px;color:#929bb0;background:#080b12">
+            <strong style="color:#eef0f7;margin-bottom:8px">Your camera is ready when you are</strong>
+            <span>Choose Start Camera and allow browser camera permission.</span>
+          </div>
         </div>
-        <div class="camera-footer"><span id="cameraStatus">Waiting for pose…</span><span class="muted">Keep your full body in frame</span></div>
+        <div class="camera-actions">
+          <button type="button" class="camera-button" id="startCamera">Start Camera</button>
+          <button type="button" class="camera-button secondary" id="stopCamera" disabled>Stop Camera</button>
+          <span id="cameraStatus" role="status" aria-live="polite">Camera is stopped.</span>
+        </div>
+        <p class="camera-help">The browser accesses your camera and sends frames to the server for pose analysis. Only use this with a trusted deployment; avoid sharing sensitive footage.</p>
+        <div class="camera-footer"><span id="cameraStatusFooter">Keep your full body in frame</span><span class="muted">Good lighting improves tracking</span></div>
       </section>
 
       <section class="quick-stats">
@@ -55,15 +73,13 @@
         <article class="metric-card"><span class="metric-label">AI CONFIDENCE</span><strong id="confidence">0.0%</strong><div class="progress-track"><span id="confidenceBar"></span></div></article>
         <article class="metric-card"><span class="metric-label">POSTURE SCORE</span><strong id="accuracy">0.0%</strong><small>Angle similarity estimate</small></article>
       </section>
-
-      
     </section>
 
     <aside class="sidebar">
       <section class="panel score-panel">
         <p class="eyebrow">YOUR ALIGNMENT</p><h2>Posture similarity</h2>
         <div class="score-ring" id="scoreRing"><div class="ring-content"><strong id="ringValue">0%</strong><span>SIMILARITY</span></div></div>
-        <p class="score-message" id="scoreMessage">Stand where your full body is visible.</p>
+        <p class="score-message" id="scoreMessage">Start your camera to begin.</p>
         <div class="model-status" id="modelStatus">Checking model and dataset…</div>
       </section>
       <section class="panel history-panel">
