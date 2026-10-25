@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>AsanaSenseAI | Real-Time Pose Coach</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <a class="brand" href="/">
+      <span class="brand-mark">🧘🏻‍♀️</span>
+      <span class="brand-copy">AsanaSense<span class="accent">AI</span><small>REAL-TIME POSE COACH</small></span>
+    </a>
+    <div class="pose-selector">
+      <label for="targetPose">TARGET POSE</label>
+      <select id="targetPose">
+        {% for pose in poses %}
+        <option value="{{ pose.key }}" {% if pose.key == target_pose %}selected{% endif %}>{{ pose.name }}</option>
+        {% endfor %}
+      </select>
+      <span id="targetStatus" role="status"></span>
+    </div>
+    <div class="live-status"><span class="pulse-dot"></span> LIVE SESSION</div>
+  </header>
+
+  <main class="dashboard">
+    <section class="camera-column">
+      <div class="page-intro">
+        <div>
+          <p class="eyebrow">YOUR PRACTICE SPACE</p>
+          <h1>Find your <span class="accent">balance.</span></h1>
+          <p class="subtitle">Move mindfully. Get real-time feedback on your form.</p>
+        </div>
+        <div class="camera-chip"><span class="pulse-dot"></span> Camera coaching</div>
+      </div>
+
+      <section class="camera-card">
+        <div class="card-topline"><span><span class="tiny-dot"></span> LIVE CAMERA</span><span class="muted">Reference skeleton overlays your pose</span></div>
+        <div class="video-frame">
+          <img src="{{ url_for('video_feed') }}" alt="Live yoga pose analysis">
+          <div class="video-target" id="videoTarget">{{ pose_names.get(target_pose, target_pose) }}</div>
+          <div class="video-caption"><span class="pulse-dot"></span> MediaPipe pose tracking <span class="caption-divider">·</span> 33 landmarks</div>
+        </div>
+        <div class="camera-footer"><span id="cameraStatus">Waiting for pose…</span><span class="muted">Keep your full body in frame</span></div>
+      </section>
+
+      <section class="quick-stats">
+        <article class="metric-card"><span class="metric-label">AI DETECTION</span><strong id="predictedPose">Waiting…</strong><small>Predicted pose</small></article>
+        <article class="metric-card"><span class="metric-label">AI CONFIDENCE</span><strong id="confidence">0.0%</strong><div class="progress-track"><span id="confidenceBar"></span></div></article>
+        <article class="metric-card"><span class="metric-label">POSTURE SCORE</span><strong id="accuracy">0.0%</strong><small>Angle similarity estimate</small></article>
+      </section>
+
+      
+    </section>
+
+    <aside class="sidebar">
+      <section class="panel score-panel">
+        <p class="eyebrow">YOUR ALIGNMENT</p><h2>Posture similarity</h2>
+        <div class="score-ring" id="scoreRing"><div class="ring-content"><strong id="ringValue">0%</strong><span>SIMILARITY</span></div></div>
+        <p class="score-message" id="scoreMessage">Stand where your full body is visible.</p>
+        <div class="model-status" id="modelStatus">Checking model and dataset…</div>
+      </section>
+      <section class="panel history-panel">
+        <div class="panel-heading"><div><p class="eyebrow">SESSION INSIGHTS</p><h2>Posture score history</h2></div><span class="muted">Recent updates</span></div>
+        <div class="chart-wrap"><canvas id="accuracyChart"></canvas></div>
+      </section>
+      <section class="panel">
+        <div class="panel-heading"><div><p class="eyebrow">BODY MECHANICS</p><h2>Joint analysis</h2></div><span class="count-pill" id="jointCount">0 / 0</span></div>
+        <div id="jointList" class="joint-list"><p class="muted">Waiting for body landmarks…</p></div>
+      </section>
+      <section class="panel suggestions-panel">
+        <div class="panel-heading"><div><p class="eyebrow">COACHING NOTES</p><h2>Adjust your form</h2></div><span class="spark">🧘🏻‍♀️</span></div>
+        <ul id="suggestions"><li class="muted">Suggestions will appear when a pose is detected.</li></ul>
+      </section>
+      <p class="disclaimer">AsanaSenseAI is an experimental visual guide, not medical advice. Scores depend on camera angle, visibility, and reference-data quality.</p>
+    </aside>
+  </main>
+  <footer><span>🧘🏻‍♀️AsanaSenseAI</span><span>Practice better. Move mindfully.</span></footer>
+</div>
+<script>window.ASANA_POSE_NAMES = {{ pose_names|tojson }};</script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+</body>
+</html>

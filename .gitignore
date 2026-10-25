@@ -1,0 +1,26 @@
+# Python virtual environments
+.venv/
+.venv311/
+venv/
+
+# Python cache
+__pycache__/
+*.py[cod]
+
+# Environment variables and secrets
+.env
+.env.*
+
+# Keep the example configuration
+!.env.example
+
+# Testing cache
+.pytest_cache/
+
+# IDE and operating system files
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Local backup model
+models/pose_classifier_backup.joblib
